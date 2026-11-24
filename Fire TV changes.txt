@@ -1,0 +1,47 @@
+Fire TV Stick (3rd gen, AFTSS, Fire OS 7.6.8.5) at 192.168.100.156 - changes made 2026-11-08
+
+SPEED
+- Animations 1.0 -> 0.5 (window, transition, animator)
+- Cleared app caches: storage 74% -> 63% full
+- Featured Content: video autoplay OFF, audio autoplay OFF
+- Privacy: Device Usage Data OFF, Collect App Usage Data OFF, Interest-based Ads OFF
+- Amazon's background tracking services could NOT be disabled (Fire OS marks them protected)
+
+APPS
+- Uninstalled 19 apps (everything except YouTube): Netflix, Hotstar, JioCinema, SonyLIV, ZEE5, Voot,
+  Discovery+, ALTBalaji, Eros Now, Lionsgate Play, MX Player, Aaj Tak, NDTV, PTC, Ludo King, Red Ball 4,
+  Snake, Word Search, Picture Puzzle. Reinstall any from the Appstore (you'll need to log in again).
+- Storage after removal: 34% full (3.4 GB free)
+- Installed SmartTube 32.71 stable (ad-free YouTube), from github.com/yuliskov/SmartTube
+- Moved SmartTube to the front of the app row
+- Hid cloud tiles from Your Apps: News18 India, VETO, TED, Gaana, MX Player TV
+
+UNDO (from this laptop)
+  adb = C:\Users\jasme\platform-tools\adb.exe
+  adb connect 192.168.100.156:5555
+  Animations back:  adb shell "settings put global window_animation_scale 1; settings put global transition_animation_scale 1; settings put global animator_duration_scale 1"
+  Remove SmartTube: adb shell pm uninstall org.smarttube.stable
+  Privacy / autoplay: Settings > Preferences > Privacy Settings / Featured Content on the TV
+  Hidden tiles: Settings > Applications > Manage Installed Applications, or search the app in Appstore
+
+When done tinkering: turn ADB Debugging OFF in Settings > My Fire TV > Developer Options.
+
+2026-11-09  Home screen cleanup
+- dumbtv home: Ascend's 9 mountain photos as the backdrop, picked by time of day (morning/afternoon/night),
+  40% dim, medium tiles, icon chips, Inputs row and Library banner hidden.
+  Apps shown: Send to TV, YouTube, SmartTube, Prime Video. Hidden (still installed): Amazon Music, MX Player TV,
+  FireTV Troubleshooting, FLauncher. Backup of the old settings and the photos: backups\
+- Animations off: window/transition/animator scale 0 (was 0.5).
+  Undo: adb shell settings put global window_animation_scale 0.5 (same for transition_animation_scale, animator_duration_scale)
+- Disabled: com.amazon.bueller.music, com.amazon.minitv.android.app, com.amazon.bueller.photos (Photos ran the screensaver).
+  Undo: adb shell pm enable <package>. If a Fire OS or Prime Video update fails, enable these first.
+
+2026-11-09  YouTube removed
+- Uninstalled com.amazon.firetv.youtube (the official YouTube app). SmartTube stays for YouTube without ads.
+  Undo: search "YouTube" in the Fire TV Appstore and install it again.
+
+2026-11-20  Stremio installed
+- Official Stremio for Android TV 1.10.4 (com.stremio.one), armeabi-v7a, from dl.strem.io (stremio.com/downloads).
+  Signed by "CN=Ivo Georgiev, O=Stremio" (cert SHA-256 7e6a979c...c6b). APK kept in apks\stremio\.
+  Opens to a sign-in screen (QR code / link.stremio.com). Uses about 83 MB of memory while open.
+  Undo: adb shell pm uninstall com.stremio.one

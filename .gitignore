@@ -1,0 +1,16 @@
+# Glass Home has its own repo
+glass-home/
+# Big or private local files
+apks/
+captures/
+backups/
+posture/models/
+send-to-tv/build/
+send-to-tv/dist/
+__pycache__/
+*.log
+*.keystore
+*.jks
+*.p12
+*.apk
+.claude/settings.local.json

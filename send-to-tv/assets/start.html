@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Send to TV</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; padding: 28px 48px 20px;
+    font-family: "Segoe UI", Roboto, sans-serif; color: #eef2ff;
+    background: radial-gradient(1200px 600px at 10% -10%, #2a4fb8 0%, rgba(42,79,184,0) 60%), #0b1020;
+  }
+  h1 { margin: 0 0 6px; font-size: 38px; letter-spacing: .5px; }
+  .lead { margin: 0 0 18px; font-size: 18px; color: #b9c4e6; }
+  .top { display: flex; gap: 32px; align-items: center; margin-bottom: 22px; }
+  .intro { flex: 1; min-width: 0; }
+  .manual { font-size: 16px; color: #b9c4e6; line-height: 1.6; }
+  .addr { font-size: 22px; font-weight: 700; color: #fff; white-space: nowrap; }
+  .pin { font-size: 22px; font-weight: 700; color: #fff; letter-spacing: 4px; white-space: nowrap; }
+  .scan {
+    display: flex; gap: 18px; align-items: center; flex: none;
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); border-radius: 18px; padding: 14px 20px 14px 14px;
+  }
+  .qr { width: 176px; height: 176px; border-radius: 10px; overflow: hidden; background: #fff; flex: none; }
+  .qr svg { display: block; width: 100%; height: 100%; }
+  .scan b { display: block; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #8fb3ff; margin-bottom: 6px; }
+  .scan .say { width: 230px; }
+  .scan p { margin: 0; font-size: 18px; line-height: 1.35; }
+  .scan small { display: block; margin-top: 8px; font-size: 13px; color: #9fb0da; }
+  .offline { width: 176px; color: #ffb4b4; font-size: 15px; }
+  h2 { font-size: 18px; margin: 0 0 12px; color: #b9c4e6; font-weight: 600; }
+  .tiles { display: flex; flex-wrap: wrap; gap: 14px; }
+  .tile {
+    width: 200px; min-height: 84px; padding: 14px; border-radius: 14px; text-decoration: none; color: #fff;
+    background: linear-gradient(135deg, #24345f, #172340); border: 1px solid rgba(255,255,255,.14);
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .tile b { font-size: 16px; line-height: 1.25; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .tile small { font-size: 12px; color: #9fb0da; margin-top: 8px; }
+  .tile:focus { outline: none; background: linear-gradient(135deg, #3a5bb0, #22346a); }
+  .tile.continue { background: linear-gradient(135deg, #2f6ae0, #1d3f99); border-color: rgba(255,255,255,.3); }
+  .tile.continue b { font-size: 18px; }
+  .tile.continue small { color: #dbe6ff; }
+  .tile.pinned { background: linear-gradient(135deg, #3b2f6e, #221a45); }
+  .tile.pinned:focus { background: linear-gradient(135deg, #6250b8, #3a2c78); }
+  .section { margin-bottom: 18px; }
+  .empty { color: #8a96b8; font-size: 16px; }
+  .keys { margin-top: 18px; font-size: 13px; color: #8a96b8; }
+</style>
+</head>
+<body>
+  <div class="top">
+    <div class="intro">
+      <h1>Send to TV</h1>
+      <p class="lead">Pick something on your phone and it opens here. Use the remote's arrows and OK to move around.</p>
+      <p class="manual">No camera? On the phone open <span class="addr">{{ADDR}}</span><br>and enter PIN <span class="pin">{{PIN}}</span></p>
+    </div>
+    <div class="scan">
+      <div class="qr">{{QR}}</div>
+      <div class="say"><b>Connect a phone</b><p>Point the phone's camera here and tap the link.</p>
+        <small>The phone remembers this TV. Tip: "Add to Home screen" in its browser menu gives one-tap access.</small></div>
+    </div>
+  </div>
+  <div class="section">
+    <h2>Pinned</h2>
+    <div class="tiles">{{PINS}}</div>
+  </div>
+  <h2>Recent</h2>
+  <div class="tiles">{{TILES}}</div>
+  <p class="keys">Arrows move · OK selects · Hold OK pins or unpins · Back goes back and closes pop-ups · Menu closes pop-ups, or returns here · Play/Pause, Rewind and Fast-forward control videos</p>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "glass-home-ui",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8977", "--bind", "127.0.0.1", "--directory", "glass-home/assets/ui"],
+      "port": 8977
+    }
+  ]
+}

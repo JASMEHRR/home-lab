@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.png">
+<link rel="apple-touch-icon" href="/icon.png">
+<title>Send to TV</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0b1020; --card: #151d36; --line: rgba(255,255,255,.12);
+    --text: #eef2ff; --muted: #9fb0da; --accent: #4d8dff; --accent-2: #2f6ae0; --bad: #ff6b6b; --good: #4fd18b;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+  }
+  main { max-width: 520px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 4px 0 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; margin-bottom: 14px; }
+  .card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 0 0 10px; }
+  input, textarea {
+    width: 100%; font: inherit; color: var(--text); background: #0e1530; border: 1px solid var(--line);
+    border-radius: 12px; padding: 12px; outline: none;
+  }
+  input:focus, textarea:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 64px; }
+  button {
+    font: inherit; font-weight: 600; color: #fff; background: #222c4f; border: 1px solid var(--line);
+    border-radius: 12px; padding: 12px 14px; min-height: 48px; cursor: pointer; touch-action: manipulation;
+  }
+  button:active { transform: scale(.97); background: #2c3964; }
+  button.primary { background: var(--accent-2); border-color: transparent; }
+  .row { display: flex; gap: 10px; margin-top: 10px; }
+  .row > * { flex: 1; }
+  .status { min-height: 20px; margin-top: 8px; font-size: 14px; color: var(--muted); }
+  .status.bad { color: var(--bad); } .status.good { color: var(--good); }
+  .pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .pad button { min-height: 64px; font-size: 22px; }
+  .pad .ok { background: var(--accent-2); border-color: transparent; font-size: 18px; }
+  .pad .blank { visibility: hidden; }
+  .pad button small, .media button small { display: block; font-size: 11px; font-weight: 500; color: var(--muted); margin-top: 2px; }
+  .media { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
+  .recent { display: flex; flex-direction: column; gap: 8px; }
+  .recent button { text-align: left; background: #111a36; font-weight: 500; }
+  .recent small { display: block; color: var(--muted); font-weight: 400; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .site { display: flex; gap: 8px; }
+  .site > button:first-child { flex: 1; min-width: 0; }
+  .site .unpin { flex: none; font-size: 13px; font-weight: 500; }
+  .hidden { display: none !important; }
+  .tvstate { font-size: 13px; color: var(--muted); margin: -8px 0 12px; }
+  .link { background: none; border: 0; color: var(--muted); text-decoration: underline; min-height: 0; padding: 4px 0; font-weight: 400; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Send to TV</h1>
+
+  <section id="pinCard" class="card hidden">
+    <h2>Enter the PIN shown on the TV</h2>
+    <input id="pin" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="off" placeholder="4-digit PIN">
+    <div class="row"><button class="primary" id="savePin">Connect</button></div>
+    <div class="status" id="pinStatus"></div>
+  </section>
+
+  <div id="app" class="hidden">
+    <p class="tvstate" id="tvState"></p>
+
+    <section class="card">
+      <h2>Watch on TV</h2>
+      <textarea id="url" placeholder="Paste a link here (long-press, then Paste)" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
+      <div class="row">
+        <button id="paste" class="hidden">Paste</button>
+        <button class="primary" id="send">Send to TV</button>
+      </div>
+      <div class="status" id="sendStatus"></div>
+    </section>
+
+    <section class="card">
+      <h2>Remote</h2>
+      <div class="pad">
+        <button data-k="back" title="Back">↩<small>Back</small></button><button data-k="up" data-repeat title="Up">▲</button><button data-k="home" title="Start page">⌂<small>Home</small></button>
+        <button data-k="left" data-repeat title="Left">◀</button><button data-k="ok" class="ok">OK</button><button data-k="right" data-repeat title="Right">▶</button>
+        <button data-k="scrollup" title="Scroll up">⇞<small>Scroll up</small></button><button data-k="down" data-repeat title="Down">▼</button><button data-k="scrolldown" title="Scroll down">⇟<small>Scroll down</small></button>
+      </div>
+      <div class="media">
+        <button data-k="rew">⏪ 10s</button><button data-k="play">⏯<small>Play / Pause</small></button><button data-k="ff">10s ⏩</button>
+      </div>
+      <div class="media">
+        <button data-k="clean">✕<small>Close pop-ups</small></button><button id="pinNow">📌<small id="pinLabel">Pin this page</small></button><button id="desktop">🖥<small id="desktopLabel">Desktop site: off</small></button>
+      </div>
+      <div class="status" id="keyStatus"></div>
+    </section>
+
+    <section class="card">
+      <h2>Type on the TV</h2>
+      <input id="typed" placeholder="Pick a search box on the TV first, then type here" autocomplete="off">
+      <div class="row">
+        <button id="type">Type it</button>
+        <button class="primary" id="search">Type + Enter</button>
+      </div>
+      <div class="status" id="typeStatus"></div>
+    </section>
+
+    <section class="card">
+      <h2>Pinned</h2>
+      <div class="recent" id="pins"></div>
+    </section>
+
+    <section class="card">
+      <h2>Recent</h2>
+      <div class="recent" id="recent"></div>
+    </section>
+
+    <button class="link" id="forget">Use a different PIN</button>
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  var PIN_KEY = 'stv.pin';
+  var $ = function (id) { return document.getElementById(id); };
+
+  // The PIN is kept twice (browser storage and a year-long cookie) so the phone still knows
+  // this TV if one of them is cleared.
+  function savedPin() {
+    var p = null;
+    try { p = localStorage.getItem(PIN_KEY); } catch (e) { p = null; }
+    if (!p) {
+      var m = /(?:^|;\s*)stv_pin=(\d{4,8})/.exec(document.cookie);
+      if (m) p = m[1];
+    }
+    return p;
+  }
+  function savePin(p) {
+    try { localStorage.setItem(PIN_KEY, p); } catch (e) { /* private mode: the cookie still works */ }
+    document.cookie = 'stv_pin=' + p + '; max-age=31536000; path=/; SameSite=Strict';
+  }
+  function forgetPin() {
+    try { localStorage.removeItem(PIN_KEY); } catch (e) { /* nothing stored */ }
+    document.cookie = 'stv_pin=; max-age=0; path=/; SameSite=Strict';
+  }
+
+  var pin = savedPin();
+  // The TV's QR code links to /#pin=1234: take the PIN, then drop it from the address bar.
+  var fromQr = /[#&]pin=(\d{4,8})/.exec(location.hash);
+  if (fromQr) {
+    pin = fromQr[1];
+    savePin(pin);
+    history.replaceState(null, '', location.pathname);
+  }
+
+  function say(el, msg, kind) {
+    el.textContent = msg || '';
+    el.className = 'status' + (kind ? ' ' + kind : '');
+  }
+
+  function buzz() { if (navigator.vibrate) navigator.vibrate(12); }
+
+  /** POST to the TV. Resolves to the JSON reply; rejects with a readable message. */
+  function api(path, fields) {
+    var body = new URLSearchParams();
+    body.set('pin', pin || '');
+    Object.keys(fields || {}).forEach(function (k) { body.set(k, fields[k]); });
+    return fetch(path, { method: 'POST', body: body, cache: 'no-store' })
+      .catch(function () { throw new Error("Can't reach the TV. Is it on, and is your phone on the same Wi-Fi?"); })
+      .then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (j) {
+          if (r.status === 401) { showPin('Wrong PIN. Check the Send to TV screen on the TV.'); throw new Error('Wrong PIN'); }
+          if (!r.ok || j.ok === false) throw new Error(j.error || ('The TV answered ' + r.status));
+          return j;
+        });
+      });
+  }
+
+  function showPin(message) {
+    pin = null;
+    forgetPin();
+    $('app').classList.add('hidden');
+    $('pinCard').classList.remove('hidden');
+    say($('pinStatus'), message || '', message ? 'bad' : '');
+    $('pin').focus();
+  }
+
+  function showApp() {
+    $('pinCard').classList.add('hidden');
+    $('app').classList.remove('hidden');
+    refresh();
+  }
+
+  var state = null;
+
+  function isPinned(url) {
+    return !!(state && (state.pins || []).some(function (p) { return p.url === url; }));
+  }
+
+  /** Fills a list of sites; each opens on the TV when tapped, and pinned ones get an Unpin button. */
+  function fillSites(box, sites, empty, unpinnable) {
+    box.textContent = '';
+    sites.forEach(function (r) {
+      var row = document.createElement('div');
+      row.className = 'site';
+      var b = document.createElement('button');
+      var host = r.url;
+      try { host = new URL(r.url).host; } catch (e) { /* keep the raw url */ }
+      b.textContent = r.title || host;
+      var small = document.createElement('small');
+      small.textContent = host;
+      b.appendChild(small);
+      b.addEventListener('click', function () { send(r.url); });
+      row.appendChild(b);
+      if (unpinnable) {
+        var u = document.createElement('button');
+        u.className = 'unpin';
+        u.textContent = 'Unpin';
+        u.addEventListener('click', function () { pin(r.url, r.title, false); });
+        row.appendChild(u);
+      }
+      box.appendChild(row);
+    });
+    if (!box.children.length) {
+      var p = document.createElement('p');
+      p.className = 'status';
+      p.textContent = empty;
+      box.appendChild(p);
+    }
+  }
+
+  function refresh() {
+    return api('/api/state').then(function (s) {
+      state = s;
+      var cur = s.current || {};
+      $('tvState').textContent = s.tv === 'open'
+        ? (cur.title ? 'On TV: ' + cur.title : 'Send to TV is on the screen')
+        : 'Send to TV is not on the screen. Sending a link opens it.';
+      $('pinLabel').textContent = cur.url && isPinned(cur.url) ? 'Unpin this page' : 'Pin this page';
+      $('desktopLabel').textContent = 'Desktop site: ' + (cur.desktop ? 'on' : 'off');
+      fillSites($('pins'), s.pins || [], 'Pin sites you watch often: tap 📌 above, or hold OK on the TV remote.', true);
+      fillSites($('recent'), s.recents || [], 'Links you send will show up here.', false);
+    }).catch(function (e) { say($('sendStatus'), e.message, 'bad'); });
+  }
+
+  function pin(url, title, on) {
+    buzz();
+    api('/api/pin', { url: url, title: title || '', on: on ? '1' : '0' }).then(function () {
+      say($('keyStatus'), on ? 'Pinned to the TV start page ✓' : 'Unpinned', 'good');
+      refresh();
+    }).catch(function (e) { say($('keyStatus'), e.message, 'bad'); });
+  }
+
+  function send(url) {
+    var value = (url || $('url').value || '').trim();
+    if (!value) { say($('sendStatus'), 'Paste a link first.', 'bad'); return; }
+    buzz();
+    say($('sendStatus'), 'Sending…');
+    api('/api/open', { url: value }).then(function () {
+      say($('sendStatus'), 'Opening on the TV ✓', 'good');
+      if (!url) $('url').value = '';
+      setTimeout(refresh, 1500);
+    }).catch(function (e) { say($('sendStatus'), e.message, 'bad'); });
+  }
+
+  function key(k) {
+    buzz();
+    return api('/api/key', { k: k }).then(function () { say($('keyStatus'), ''); })
+      .catch(function (e) { say($('keyStatus'), e.message, 'bad'); });
+  }
+
+  function type(submit) {
+    var t = $('typed').value;
+    if (!t) { say($('typeStatus'), 'Type something first.', 'bad'); return; }
+    buzz();
+    api('/api/text', { t: t, submit: submit ? '1' : '0' }).then(function () {
+      say($('typeStatus'), 'Typed on the TV ✓', 'good');
+      if (submit) $('typed').value = '';
+    }).catch(function (e) { say($('typeStatus'), e.message, 'bad'); });
+  }
+
+  $('savePin').addEventListener('click', function () {
+    var p = $('pin').value.trim();
+    if (!/^\d{4,8}$/.test(p)) { say($('pinStatus'), 'The PIN is the 4 digits on the TV.', 'bad'); return; }
+    pin = p;
+    api('/api/state').then(function () {
+      savePin(p);
+      showApp();
+    }).catch(function (e) { if (e.message !== 'Wrong PIN') say($('pinStatus'), e.message, 'bad'); });
+  });
+  $('pin').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('savePin').click(); });
+
+  $('send').addEventListener('click', function () { send(); });
+  $('type').addEventListener('click', function () { type(false); });
+  $('search').addEventListener('click', function () { type(true); });
+  $('forget').addEventListener('click', function () { showPin(''); });
+  $('pinNow').addEventListener('click', function () {
+    var cur = state && state.current;
+    if (!cur || !cur.url) { say($('keyStatus'), 'Open a site on the TV first.', 'bad'); return; }
+    pin(cur.url, cur.title, !isPinned(cur.url));
+  });
+  $('desktop').addEventListener('click', function () {
+    var on = !(state && state.current && state.current.desktop);
+    buzz();
+    api('/api/desktop', { on: on ? '1' : '0' }).then(function () {
+      say($('keyStatus'), on ? 'Showing the desktop version on the TV' : 'Showing the normal version on the TV', 'good');
+      setTimeout(refresh, 800);
+    }).catch(function (e) { say($('keyStatus'), e.message, 'bad'); });
+  });
+
+  if (navigator.clipboard && navigator.clipboard.readText && window.isSecureContext) {
+    $('paste').classList.remove('hidden');
+    $('paste').addEventListener('click', function () {
+      navigator.clipboard.readText().then(function (t) { $('url').value = t; })
+        .catch(function () { say($('sendStatus'), 'Long-press the box and choose Paste.', 'bad'); });
+    });
+  }
+
+  // Remote buttons; arrows repeat while held down.
+  Array.prototype.forEach.call(document.querySelectorAll('[data-k]'), function (b) {
+    var k = b.getAttribute('data-k'), timer = null, delay = null;
+    var stop = function () { clearTimeout(delay); clearInterval(timer); delay = timer = null; };
+    if (b.hasAttribute('data-repeat')) {
+      b.addEventListener('pointerdown', function (e) {
+        e.preventDefault();
+        key(k);
+        delay = setTimeout(function () { timer = setInterval(function () { key(k); }, 180); }, 400);
+      });
+      ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (t) { b.addEventListener(t, stop); });
+    } else {
+      b.addEventListener('click', function () { key(k); });
+    }
+  });
+
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && pin) refresh(); });
+
+  if (pin) showApp(); else showPin('');
+})();
+</script>
+</body>
+</html>
