@@ -14,3 +14,8 @@ __pycache__/
 *.p12
 *.apk
 .claude/settings.local.json
+
+# private: keep off GitHub
+send-to-tv/keystore/
+posture/data/
+posture/calibration.json
