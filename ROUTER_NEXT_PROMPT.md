@@ -1,4 +1,4 @@
-You are working on Jasmehr's home internet from his Windows 11 laptop. You can run PowerShell and use a browser on this laptop.
+You are working on JasMehr's home internet from his Windows 11 laptop. You can run PowerShell and use a browser on this laptop.
 
 GOAL
 His internet plan is 60 Mbps, but the laptop measured about 10 Mbps, and video (Stremio, Fire TV streaming) buffers. Find out why and make it faster. Change router settings only where a change can actually help, and prove each result with a before and after speed test.

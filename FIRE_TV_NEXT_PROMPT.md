@@ -1,4 +1,4 @@
-Here is everything that has been done on Jasmehr's Amazon Fire TV Stick so far, and the key facts about it. This is background only, for your information.
+Here is everything that has been done on JasMehr's Amazon Fire TV Stick so far, and the key facts about it. This is background only, for your information.
 
 THE DEVICE
 - Fire TV Stick 3rd gen, model AFTSS, Fire OS 7.6.8.5, Android WebView 138. Used mainly by his mom.

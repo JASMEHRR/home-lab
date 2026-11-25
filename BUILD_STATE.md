@@ -16,7 +16,7 @@ Finish line: Stremio launches from the Start menu; add-on list shows the officia
 ## Now
 Waiting on sign-in for stage 4.
 
-## Blocked (needs Jasmehr)
+## Blocked (needs JasMehr)
 - Sign in to Stremio on the laptop (same account as the TV). Then the official add-ons that come with the account are on
   automatically, on both laptop and TV. More official ones: Add-ons button, top right in Stremio.
 
